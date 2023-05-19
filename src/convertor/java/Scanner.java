@@ -31,7 +31,7 @@ class Scanner {
         lexNumBin = 11,         /* ч-вbin */        lexNumBinL = 15,        /* ч-вbin-L */  lexNumBinLL = 16,           /* ч-вbin-LL */
         lexNumBinU = 12,        /* ч-вbin-U */      lexNumBinUL = 13,       /* ч-вbin-UL */ lexNumBinULL = 14,          /* ч-вbin-ULL */
 
-        lexNumReal = 29,
+        lexNumReal = 29,        lexNumLongReal = 157,
 
         lexNumFloat = 30,       /* ч-float */       lexNumDouble = 31,      /* ч-double */  lexNumDoubleL = 32,         /* ч-double-L */
 
@@ -183,38 +183,13 @@ class Scanner {
         Buf.setLength(0);
 
         do {
-            if (Text.Ch != '_') {
-                if (i++ < NAMELEN) {
-                    Buf.append((char) Text.Ch);
-                } else {
-                    Error.Message("Слишком длинное имя");
-                }
-
-                Text.NextCh();
-                BackSlash();
+            if (i++ < NAMELEN) {
+                Buf.append((char) Text.Ch);
+            } else {
+                Error.Message("Слишком длинное имя");
             }
 
-            if (Text.Ch == '_') {
-                if (i++ < NAMELEN) {
-                    Buf.append((char) Text.Ch);
-                } else {
-                    Error.Message("Слишком длинное имя");
-                }
-                Text.NextCh();
-                BackSlash();
-                if (Text.Ch == '_') {
-                    if (i++ < NAMELEN) {
-                        Buf.append((char) Text.Ch);
-                    } else {
-                        Error.Message("Слишком длинное имя");
-                    }
-                    Error.Warning("Двойное подчеркивание в идентификаторах зарезервировано в С++");
-                    Text.NextCh();
-                    BackSlash();
-                }
-            }
-
-            BackSlash();
+            Text.NextCh();
         } while (Character.isLetterOrDigit((char)Text.Ch));
 
 
@@ -224,9 +199,50 @@ class Scanner {
 
 
     // Нахождение числа (бинарное, восьмеричное, десятичное, шестнадцатеричное и все суффиксы)
-    private static void Number() {
+    private static void NumberOrChar() {
         Lex = lexNum;
         Num = 0;
+
+        DecNumber();
+        if (Text.Ch >= 'A' && Text.Ch <= 'F') {
+            HexNumber();
+            if (Text.Ch == 'H') {
+                Text.NextCh();
+                Lex = lexNumHex;
+            } else if (Text.Ch == 'X') {
+                Text.NextCh();
+                Lex = lexCharacter;
+            } else {
+                Error.Expected("символ 'H' или 'X'");
+            }
+        } else if (Text.Ch == 'H') {
+            Text.NextCh();
+            Lex = lexNumHex;
+        } else if (Text.Ch == 'X') {
+            Text.NextCh();
+            Lex = lexCharacter;
+        } else if (Text.Ch == '.') {
+            Text.NextCh();
+            if (Text.Ch == '.') {
+                Lex = lexNum;
+            } else {
+                DecNumber();
+                if (SearchSuffixE()) {
+                    Lex = lexNumReal;
+                } else if (SearchSuffixD()) {
+                    Lex = lexNumLongReal;
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
 
         if (Text.Ch == '0') {                                   // Проверка наличия у первого числа "0":
             Text.NextCh();
@@ -440,7 +456,6 @@ class Scanner {
     private static void OctNumber() {
         do {
             Text.NextCh();
-            BackSlash();
         } while (Text.Ch >= '0' && Text.Ch <= '7');
     }
 
@@ -448,7 +463,6 @@ class Scanner {
     private static void HexNumber() {
         do {
             Text.NextCh();
-            BackSlash();
         } while ((Text.Ch >= '0' && Text.Ch <= '9') || (Text.Ch >= 'A' && Text.Ch <= 'F') || (Text.Ch >= 'a' && Text.Ch <= 'f'));
     }
 
@@ -456,16 +470,14 @@ class Scanner {
     private static void DecNumber() {
         do {
             Text.NextCh();
-            BackSlash();
         } while (Character.isDigit((char)Text.Ch));
     }
 
 
     // Поиск суффикса Е
     private static boolean SearchSuffixE() {
-        if (Text.Ch == 'E' || Text.Ch == 'e') {
+        if (Text.Ch == 'E') {
             Text.NextCh();
-            BackSlash();
 
             if (Text.Ch == '-') {
                 Text.NextCh();
@@ -473,7 +485,27 @@ class Scanner {
                 Text.NextCh();
             }
 
-            BackSlash();
+            if (Character.isDigit((char)Text.Ch)) {
+                DecNumber();
+            } else {
+                Error.Expected("символ после суффикса");
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Поиск суффикса D
+    private static boolean SearchSuffixD() {
+        if (Text.Ch == 'D') {
+            Text.NextCh();
+
+            if (Text.Ch == '-') {
+                Text.NextCh();
+            } else if (Text.Ch == '+') {
+                Text.NextCh();
+            }
 
             if (Character.isDigit((char)Text.Ch)) {
                 DecNumber();
@@ -627,28 +659,18 @@ class Scanner {
 
     // Нахождение строки
     private static void String() {
-        do {
-            Text.NextCh();
-            if (Text.Ch == '\\') {
+        if (Text.Ch == '\'') {
+            do {
                 Text.NextCh();
-                if (Text.Ch == '\"') {
-                    Text.NextCh();
-                } else if (Text.Ch == Text.chEOL) {
-                    Text.NextCh();
-                    BackSlash();
-                }
-            }
-        } while (Text.Ch != '\"' /*&& Text.Ch != '\\'*/ && Text.Ch != Text.chEOL && Text.Ch != Text.chEOT);
+            } while (Text.Ch != '\'' && Text.Ch != Text.chEOL && Text.Ch != Text.chEOT);
+        } else if (Text.Ch == '\"') {
+            do {
+                Text.NextCh();
+            } while (Text.Ch != '\"' && Text.Ch != Text.chEOL && Text.Ch != Text.chEOT);
+        }
 
         if (Text.Ch == Text.chEOL || Text.Ch == Text.chEOT) {
             Error.Expected("символ строки");
-//        } else if (Text.Ch == '\\') {
-//            Text.NextCh();
-//            if (Text.Ch == Text.chEOT) {
-//                Error.Message("Не закончена строка");
-//            } else {
-//                String();
-//            }
         } else {
             Text.NextCh();
         }
@@ -815,17 +837,12 @@ class Scanner {
                     Lex = lexHash;
                     break;
                 case '\'':
-                    Character();
-                    Lex = lexCharacter;
+                    String();
+                    Lex = lexString;
                     break;
                 case '\"':
-                    if (Lex == lexString) {
-                        String();
-                        NextLex();
-                    } else {
-                        String();
-                        Lex = lexString;
-                    }
+                    String();
+                    Lex = lexString;
                     break;
                 case Text.chEOT:
                     Lex = lexEOT;
