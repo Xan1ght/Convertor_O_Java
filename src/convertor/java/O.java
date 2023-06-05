@@ -14,7 +14,7 @@ public class O {
         if (!Text.Ok) {
             Error.Message(Text.Message);
         }
-        Scanner.Init();
+        Scan.Init();
     }
 
     static void Done() {
@@ -24,7 +24,7 @@ public class O {
 
     public static void main(String[] args) {
         System.out.println("\nХлюпин Дмитрий, ПМ-21");
-        System.out.print("Компилятор С++");
+        System.out.print("Конвертор С++");
 
         if (args.length == 0) {
             Location.Path = null;
@@ -54,7 +54,7 @@ public class O {
                     System.out.println("\n\033[33m" +("=").repeat(100) + "\033[0m");
                 }
 
-                Pars.CompileA();            // Компиляция задачи А
+//                Pars.CompileA();            // Компиляция задачи А
 
             } catch (IOException e) {
                 System.err.println(e);
@@ -70,7 +70,11 @@ public class O {
 
             System.out.println("\n\033[33m" +("=").repeat(100) + "\033[0m");
 
-            Pars.CompileA();    // Компиляция задачи А
+            Init();             // Инициализация текста и сканнера
+            Converter.Java();   // Конвертер файла в Java
+            Done();             // Завершение работы
+
+//            Pars.CompileA();    // Компиляция задачи А
         }
     }
 }

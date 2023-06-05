@@ -22,7 +22,7 @@ class Text {
             if ((Ch = f.read()) == -1) {
                 Ch = chEOT;
             } else if (Ch == '\n') {
-                System.out.println();
+//                System.out.println();
                 Location.Line++;
                 Location.ErrorPos = Location.Pos;
                 Location.Pos = 0;
@@ -30,11 +30,11 @@ class Text {
             } else if (Ch == '\r') {
                 NextCh();
             } else if (Ch != '\t') {
-                System.out.write(Ch);
+//                System.out.write(Ch);
                 Location.Pos++;
             } else {
                 do {
-                    System.out.print(' ');
+//                    System.out.print(' ');
                 } while ( ++Location.Pos % TABSIZE != 0 );
             }
         } catch (IOException e) {};
