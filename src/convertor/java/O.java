@@ -67,12 +67,11 @@ public class O {
             Init();             // Инициализация текста и сканнера
             Pars.Compile();     // Компиляция файла
             Done();             // Завершение работы
-
-            System.out.println("\n\033[33m" +("=").repeat(100) + "\033[0m");
-
             Init();             // Инициализация текста и сканнера
             Converter.Java();   // Конвертер файла в Java
             Done();             // Завершение работы
+
+            System.out.println("\n\033[33m" +("=").repeat(100) + "\033[0m");
 
 //            Pars.CompileA();    // Компиляция задачи А
         }

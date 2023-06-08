@@ -36,7 +36,7 @@ BEGIN
       i := i + 1;
    END;
    Out.Ln();
-   Out.Int(c, 0);
+   Out.Int(c, 1);
    Out.Ln();
 
 END Primes.

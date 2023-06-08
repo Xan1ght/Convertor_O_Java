@@ -16,6 +16,8 @@ class Pars {
       spOutInt = 10,
       spOutLn  = 11;
 
+   static int Nad;
+
    static void Check(int L, String M) {
       if( Scan.Lex != L )
          Error.Expected(M);
@@ -55,8 +57,11 @@ class Pars {
          }
       else
          Error.Expected( "константное выражение" );
-      if( Op == Scan.lexMinus )
+      if( Op == Scan.lexMinus ) {
+         Nad = -v;
          return -v;
+      }
+      Nad = v;
       return v;
    }
 

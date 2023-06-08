@@ -190,23 +190,85 @@ class Converter {
                                     String str = "" + Scan.Name;
                                     Scan.NextLex();
                                     Scan.NextLex();
+
                                     if (Scan.Lex == Scan.lexName) {
-                                        System.out.println("if (" + Scan.Name + " > 0) {");
-                                        TabAdd();
-                                        Tab();
-                                        System.out.println("String.format(\"%\" + " + Scan.Name + " + \"d\", " + str + ");");
-                                        TabDel();
-                                        Tab();
-                                        System.out.println("} else (" + Scan.Name + " != 0) {");
-                                        TabAdd();
-                                        Tab();
-                                        System.out.println("String.format(\"%\" + " + Scan.Name + " + \"d\", " + str + ");");
-                                        TabDel();
-                                        Tab();
-                                        System.out.println("}");
+
+                                        int n = Pars.Nad;
+                                        String s = Scan.Name;
+
+                                        if (n > 0) {
+
+                                            System.out.println("System.out.print(\" \".repeat(" + /*Scan.Num + */ s + " - (\" \" + " + str + ").length()) + " + str + ");");
+                                        } else {
+                                            System.out.println("System.out.print("+ str + ");");
+                                        }
+
+
+//                                        System.out.println(Pars.Nad);
+//                                        System.out.println("if (" + Scan.Name + " > 0) {");
+//                                        TabAdd();
+//                                        Tab();
+//                                        System.out.println("String.format(\"%\" + " + Scan.Name + " + \"d\", " + str + ");");
+//                                        TabDel();
+//                                        Tab();
+//                                        System.out.println("} else (" + Scan.Name + " != 0) {");
+//                                        TabAdd();
+//                                        Tab();
+//                                        System.out.println("String.format(\"%\" + " + Scan.Name + " + \"d\", " + str + ");");
+//                                        TabDel();
+//                                        Tab();
+//                                        System.out.println("}");
                                     } else {
-                                        if (Scan.Num > 0) {
-                                            System.out.println("System.out.print(\" \".repeat(" + Scan.Num + " - (\" \" + " + str + ").length()) + " + str + ");");
+                                        int n = Scan.Num;
+                                        String s = String.valueOf(Scan.Num);
+
+                                        while (Text.Ch == '+' || Text.Ch == '-' || Text.Ch == '*' || Text.Ch == 'D' || Text.Ch == 'M') {
+                                            if (Text.Ch == '+') {
+                                                Text.NextCh();
+                                                Scan.NextLex();
+                                                n = n + Scan.Num;
+                                                s = s + " + ";
+                                                s = s + String.valueOf(Scan.Num);
+//                                                System.out.print(" + " + Scan.Num);
+                                            } else if (Text.Ch == '-') {
+                                                Text.NextCh();
+                                                Scan.NextLex();
+                                                n = n - Scan.Num;
+                                                s = s + " - ";
+                                                s = s + String.valueOf(Scan.Num);
+//                                                System.out.print(" - " + Scan.Num);
+                                            } else if (Text.Ch == '*') {
+                                                Text.NextCh();
+                                                Scan.NextLex();
+                                                n = n * Scan.Num;
+                                                s = s + " * ";
+                                                s = s + String.valueOf(Scan.Num);
+//                                                System.out.print(" * " + Scan.Num);
+                                            } else if (Text.Ch == 'D') {
+                                                Scan.NextLex();
+                                                if (Scan.Name.equals("DIV")) {
+                                                    Scan.NextLex();
+                                                    n = n / Scan.Num;
+                                                    s = s + " / ";
+                                                    s = s + String.valueOf(Scan.Num);
+//                                                    System.out.print(" / " + Scan.Num);
+                                                }
+                                            } else {
+                                                Scan.NextLex();
+                                                if (Scan.Name.equals("MOD")) {
+                                                    Scan.NextLex();
+                                                    n = n % Scan.Num;
+                                                    s = s + " % ";
+                                                    s = s + String.valueOf(Scan.Num);
+//                                                    System.out.print(" % " + Scan.Num);
+                                                }
+                                            }
+                                        }
+
+
+                                        if (n > 0) {
+
+                                            System.out.println("System.out.print(\" \".repeat(" + /*Scan.Num + */ s + " - (\" \" + " + str + ").length()) + " + str + ");");
                                         } else {
                                             System.out.println("System.out.print("+ str + ");");
                                         }

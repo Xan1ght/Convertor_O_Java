@@ -43,7 +43,7 @@ static void Enter(String N, int C, int T, int V) {
    P.Val = V;
    P.Prev = Top;
    Top = P;
-   //System.out.println(Top.Val);
+//   System.out.println(Top.Val);
 }
 
 static void OpenScope() {
@@ -87,7 +87,7 @@ static Obj Find(String Name) {
 
    Bottom.Name = new String(Name);
    obj=Top;
-//   System.out.println(Top.Val);
+//   System.out.println(Top.Val + " = " + Top.Name);
    for( obj=Top; obj.Name.compareTo(Name)!=0; obj=obj.Prev );
    if( obj == Bottom )
       Error.Message("ЌҐ®Ўкпў«Ґ­­®Ґ Ё¬п");
